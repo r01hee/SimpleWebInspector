@@ -1,0 +1,37 @@
+image: node:alpine
+
+stages:
+  - build 
+
+.build:
+  artifacts: &build_artifacts
+    name: $artifact_name
+    paths:
+      - $artifact_name
+  script: &build_script
+    - cd WebApplicationClient
+    - yarn install
+    - yarn run build
+    - cd ..
+    - mkdir -p ${artifact_name}/Assets/SimpleWebInspector
+    - cp ./Assets/SimpleWebInspector/SimpleWebInspector.cs ${artifact_name}/Assets/SimpleWebInspector/
+    - mkdir -p ${artifact_name}/Assets/StreamingAssets/.SWInspector
+    - cp -r ./Assets/StreamingAssets/.SWInspector/* ${artifact_name}/Assets/StreamingAssets/.SWInspector
+
+build:
+  stage: build
+  except:
+    - tags
+  variables:
+    artifact_name: dev.r01.simplewebinspector-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+  artifacts: *build_artifacts
+  script: *build_script
+
+build_for_release:
+  stage: build
+  only:
+    - tags
+  variables:
+    artifact_name: dev.r01.simplewebinspector-${CI_COMMIT_TAG}
+  artifacts: *build_artifacts
+  script: *build_script
