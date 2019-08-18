@@ -14,6 +14,7 @@ const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -368,6 +369,16 @@ module.exports = {
       async: false,
       tsconfig: paths.appTsProdConfig,
       tslint: paths.appTsLint,
+    }),
+    new ZipPlugin({
+      path: paths.zipPath,
+      filename: paths.zipName,
+      fileOptions: {
+        mtime: new Date(),
+        mode: 0o100664,
+        compress: false,
+        forceZip64Format: false,
+      },
     }),
   ],
   // Some libraries import Node modules but don't use them in the browser.

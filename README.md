@@ -11,8 +11,7 @@ possible to edit GameObject's Transform such as Position, Rotattion, Scale.
 
 1. Change **Configuration > Scripting Runtime Version** to **.NET 4.x Equivalent** in PlayerSettings.
 
-2. Extract dev.r01.simplewebinspector-v.X.X.X.zip , and copy all in Assets/ directory to your projects Assets/ directory
-(Assets/StreamingAssets/.SWInspector/ might be hidden direcotry, so Assets/StreamingAssets/ is not empty!)
+2. Extract dev.r01.simplewebinspector-vX.X.X.zip , and then copy all contents in Assets/ directory to your projects Assets/ directory
 
 3. Attach SimpleWebInspector/SimpleWebInspector.cs to any of the GameObject.
 
@@ -29,7 +28,7 @@ yarn install
 yarn run build
 ```
 
-Then, Assets/StreamingAssets/.SWInspector directory is created.
+Then, Assets/StreamingAssets/SWInspector.zip is created.
 
 ## License
 

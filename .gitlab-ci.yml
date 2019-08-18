@@ -15,8 +15,8 @@ stages:
     - cd ..
     - mkdir -p ${artifact_name}/Assets/SimpleWebInspector
     - cp ./Assets/SimpleWebInspector/SimpleWebInspector.cs ${artifact_name}/Assets/SimpleWebInspector/
-    - mkdir -p ${artifact_name}/Assets/StreamingAssets/.SWInspector
-    - cp -r ./Assets/StreamingAssets/.SWInspector/* ${artifact_name}/Assets/StreamingAssets/.SWInspector
+    - mkdir -p ${artifact_name}/Assets/StreamingAssets/
+    - cp ./Assets/StreamingAssets/SWInspector.zip ${artifact_name}/Assets/StreamingAssets/SWInspector.zip
 
 build:
   stage: build

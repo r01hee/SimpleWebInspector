@@ -51,14 +51,14 @@ namespace SimpleWebInspector
         }
 
         static private readonly Dictionary<string, string> ExtensionContentTypeDict = new Dictionary<string, string>() {
-            {"html", "text/html"},
-            {"js", "text/javascript"},
-            {"css", "text/css"},
-            {"json", "application/json"},
+            {".html", "text/html"},
+            {".js", "text/javascript"},
+            {".css", "text/css"},
+            {".json", "application/json"},
         };
         
         static private readonly string RelativeUrlRoot = "/";
-        static private readonly string ContentsPath = ".SWInspector";
+        static private readonly string ZipFileName = "SWInspector.zip";
 
         [SerializeField]
         private string[] Prefixes = new string[] { "http://*:8080/" };
@@ -208,12 +208,15 @@ namespace SimpleWebInspector
                             res.StatusCode = 404;
                             res.Close();
                         }
-                        string path = Path.Combine(Application.streamingAssetsPath, ContentsPath, relativePath);
-                        if (Directory.Exists(path))
-                        {
-                            path = Path.Combine(path, "index.html");
+
+                        if (relativePath == "") {
+                            relativePath = "index.html";
                         }
-                        if (!File.Exists(path))
+
+                        string zipFilePath = Path.Combine(Application.streamingAssetsPath, ZipFileName);
+
+                        byte[] content = GetBytesFromZip(zipFilePath, relativePath);
+                        if (content == null)
                         {
                             res.StatusCode = 404;
                             res.Close();
@@ -221,13 +224,12 @@ namespace SimpleWebInspector
                         }
 
                         string contentType;
-                        if (!ExtensionContentTypeDict.TryGetValue(Path.GetExtension(path), out contentType))
+                        if (!ExtensionContentTypeDict.TryGetValue(Path.GetExtension(relativePath), out contentType))
                         {
-                            contentType = ExtensionContentTypeDict["html"];
+                            contentType = ExtensionContentTypeDict[".html"];
                         }
                         res.ContentType = contentType;
 
-                        byte[] content = File.ReadAllBytes(path);
                         res.OutputStream.Write(content, 0, content.Length);
                         res.Close();
                     }
@@ -318,6 +320,79 @@ namespace SimpleWebInspector
             }
 
             return null;
+        }
+
+        private static byte[] GetBytesFromZip(string zipFilePath, string contentPath)
+        {
+            Stream stream = null;
+            WWW www = null;
+
+            try {
+                try
+                {
+                    stream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read);
+                }
+                catch
+                {
+                    www = new WWW(zipFilePath);
+                    while(!www.isDone) {}
+                    stream = new MemoryStream(www.bytes);
+                }
+
+                while (true)
+                {
+                    var header = new byte[30];
+                    if (!ReadBytes(stream, header))
+                    {
+                        return null;
+                    }
+                    if (BitConverter.ToUInt32(header, 0) != 0x04034b50)
+                    {
+                        return null;
+                    }
+                    var compressedSize = BitConverter.ToUInt32(header, 18);
+                    var fileNameLength = BitConverter.ToUInt16(header, 26);
+                    var extraFieldLength = BitConverter.ToUInt16(header, 28);
+
+                    var fileNameBytes = new byte[fileNameLength];
+                    if (!ReadBytes(stream, fileNameBytes))
+                    {
+                        return null;
+                    }
+                    stream.Seek(extraFieldLength, SeekOrigin.Current);
+
+                    var fileName  = System.Text.Encoding.ASCII.GetString(fileNameBytes);
+                    if (fileName != contentPath) 
+                    {
+                        stream.Seek(compressedSize, SeekOrigin.Current);
+                        continue;
+                    }
+
+                    var data = new byte[compressedSize];
+                    if (!ReadBytes(stream, data))
+                    {
+                        return null;
+                    }
+
+                    return data;
+                }
+            }
+            finally
+            {
+                stream?.Dispose();
+                www?.Dispose();
+            }
+        }
+
+        private static bool ReadBytes(Stream stream, byte[] bytes)
+        {
+            int readSize;
+            readSize = stream.Read(bytes, 0, bytes.Length);
+            if (readSize != bytes.Length)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

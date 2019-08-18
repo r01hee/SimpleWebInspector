@@ -70,3 +70,6 @@ crashlytics-build.properties
 
 .DS_Store
 .vscode
+
+Assets/StreamingAssets/SWInspector.zip
+WebApplicationClient/build/
