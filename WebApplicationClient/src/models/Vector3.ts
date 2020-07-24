@@ -9,7 +9,7 @@ export default class Vector3 {
 
     private static readonly NAMES: string[] = ["x", "y", "z"] 
 
-    public x: number
-    public y: number
-    public z: number
+    public x!: number
+    public y!: number
+    public z!: number
 }

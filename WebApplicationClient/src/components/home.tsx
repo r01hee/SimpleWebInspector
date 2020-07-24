@@ -11,7 +11,6 @@ import Drawer from "@material-ui/core/Drawer"
 
 import { HomeActions } from '../containers/home'
 import { AppState } from '../store'
-interface OwnProps {}
 
 import Vector3InputField from './Vector3InputField'
 import GameObjectList from './GameObjectList'
@@ -25,6 +24,8 @@ import * as api from '../helpers/api'
 
 import Vector3FieldsPayload from '../models/Vector3FieldsPayload'
 
+interface OwnProps {}
+
 const drawerWidth = 240;
 
 const styles = (theme: Theme) => {
@@ -33,7 +34,7 @@ const styles = (theme: Theme) => {
           zIndex: theme.zIndex.drawer + 1,
         },
         button: {
-          margin: theme.spacing.unit
+          margin: theme.spacing()
         },
         toolbar: theme.mixins.toolbar,
         root: {
@@ -51,12 +52,12 @@ const styles = (theme: Theme) => {
           flexWrap: 'wrap',
         },
         formControl: {
-          margin: theme.spacing.unit,
+          margin: theme.spacing(),
         },
         content: {
           flexGrow: 1,
           backgroundColor: theme.palette.background.default,
-          padding: theme.spacing.unit * 3,
+          padding: theme.spacing(3),
           paddingTop: "109px"
         },
         formHeader: {
@@ -64,8 +65,8 @@ const styles = (theme: Theme) => {
           marginBottom: 10,
         },
         textField: {
-          marginLeft: theme.spacing.unit,
-          marginRight: theme.spacing.unit,
+          marginLeft: theme.spacing(),
+          marginRight: theme.spacing(),
           width: 200,
         },
   })
@@ -113,6 +114,11 @@ const makeHandleBlurVector3Field = (selectedGameObject: GameObjectItem | undefin
 type Props = OwnProps & AppState & HomeActions & WithStyles<typeof styles>
 
 const HomeComponent: React.FC<Props> = (props: Props) => {
+  const { classes, handleSetGameObjects, handleRefreshGameObjects,
+    handleExpandGameObject, handleSelectGameObject, handleChangeLocalPositionFields,
+    handleChangeLocalRotationFields, handleChangeScaleFields, handleUpdateGameObjects
+  } = props
+
   const rootRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -123,9 +129,9 @@ const HomeComponent: React.FC<Props> = (props: Props) => {
       }
 
       const gameObjects = res.body.objects as GameObject[];
-      props.handleSetGameObjects(gameObjects)
+      handleSetGameObjects(gameObjects)
     })
-  }, [rootRef])
+  }, [handleSetGameObjects])
 
   const handleClickRefreshButton = React.useCallback(() => {
     api.getGameObjectsList((err, res) => {
@@ -135,29 +141,27 @@ const HomeComponent: React.FC<Props> = (props: Props) => {
         }
 
         const gameObjects = res.body.objects as GameObject[];
-        props.handleRefreshGameObjects(gameObjects);
+        handleRefreshGameObjects(gameObjects);
       })
-  }, [rootRef]);
+  }, [handleRefreshGameObjects]);
 
   const handleExpand = React.useCallback((field: GameObjectItem) => {
-    props.handleExpandGameObject(field)
-  },[rootRef])
-
-  const { classes } = props
+    handleExpandGameObject(field)
+  }, [handleExpandGameObject])
 
   const selectedGameObject = props.gameObject.gameObjectItems.find(g => g.instanceId === props.gameObject.selectedId)
 
   const handleClickGameObject = React.useCallback((gameObject: GameObjectItem) => {
-    props.handleSelectGameObject(gameObject.instanceId);
-  }, [rootRef]);
+    handleSelectGameObject(gameObject.instanceId);
+  }, [handleSelectGameObject]);
 
-  const handleChangePosition = React.useCallback(makeHandleChangeVector3Field(props.handleChangeLocalPositionFields), [rootRef])
-  const handleChangeRotation= React.useCallback(makeHandleChangeVector3Field(props.handleChangeLocalRotationFields), [rootRef])
-  const handleChangeScale = React.useCallback(makeHandleChangeVector3Field(props.handleChangeScaleFields), [rootRef])
+  const handleChangePosition = React.useCallback(makeHandleChangeVector3Field(handleChangeLocalPositionFields), [handleChangeLocalPositionFields])
+  const handleChangeRotation= React.useCallback(makeHandleChangeVector3Field(handleChangeLocalRotationFields), [handleChangeLocalRotationFields])
+  const handleChangeScale = React.useCallback(makeHandleChangeVector3Field(handleChangeScaleFields), [handleChangeScaleFields])
 
-  const handleBlurLocalPosition = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localPosition", props.handleUpdateGameObjects), [selectedGameObject]);
-  const handleBlurLocalRotation = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localRotation", props.handleUpdateGameObjects), [selectedGameObject]);
-  const handleBlurScale = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localScale", props.handleUpdateGameObjects), [selectedGameObject]);
+  const handleBlurLocalPosition = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localPosition", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
+  const handleBlurLocalRotation = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localRotation", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
+  const handleBlurScale = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localScale", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
 
   const targetIds = props.gameObject.gameObjectItems.filter(g => !g.hasParent).map(g => g.instanceId);
   return (

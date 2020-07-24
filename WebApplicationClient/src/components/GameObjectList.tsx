@@ -29,15 +29,13 @@ interface Props extends WithStyles<typeof styles>
 const GameObjectList: React.FC<Props>  = (props: Props) => {
   const {onExpand, onClick, gameObjects, targetIds, nestCount, selectedId, classes} = props
 
-  const ref = React.useRef<HTMLDivElement>(null)
-
   const handleExpand = React.useCallback((gameObject: GameObjectItem) => {
     onExpand(gameObject)
-  },[ref])
+  },[onExpand])
 
   const handleClick = React.useCallback((gameObject: GameObjectItem) => {
     onClick(gameObject)
-  }, [ref])
+  }, [onClick])
 
   return (
     <List className={classes.list}>

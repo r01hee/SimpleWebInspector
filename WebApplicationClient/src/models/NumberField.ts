@@ -1,9 +1,9 @@
 import {filterFloat} from '../helpers/utils'
 
 export default class NumberField {
-    private _valueStr: string
-    private _value: number
-    private _error: boolean
+    private _valueStr!: string
+    private _value!: number
+    private _error!: boolean
 
     constructor(value: number, error?: boolean);
     constructor(valueStr: string);

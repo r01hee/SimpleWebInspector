@@ -4,8 +4,8 @@ import { GameObjectActions } from '../actions/GameObjectAction'
 import GameObjectItem from '../models/GameObjectItem'
 import NumberField from '../models/NumberField'
 
-import Vector3FieldsPayload from 'src/models/Vector3FieldsPayload';
-import Vector3 from 'src/models/Vector3';
+import Vector3FieldsPayload from '../models/Vector3FieldsPayload';
+import Vector3 from '../models/Vector3';
 
 export interface GameObjectState {
   gameObjectItems: GameObjectItem[],

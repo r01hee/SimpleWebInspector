@@ -5,6 +5,7 @@ export default class GameObjectItem extends GameObject {
 
     constructor(gameObject: GameObject) {
         super(gameObject);
+        this.expanded = false;
     }
 
     public AssignTransform(gameObject: GameObject): void

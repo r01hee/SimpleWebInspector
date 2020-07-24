@@ -25,7 +25,7 @@ Run below commands in "WebApplicationClient" directory.
 
 ```console
 yarn install
-yarn run build
+yarn run deploy
 ```
 
 Then, Assets/StreamingAssets/SWInspector.zip is created.
