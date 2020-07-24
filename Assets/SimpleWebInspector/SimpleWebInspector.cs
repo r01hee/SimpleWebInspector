@@ -322,12 +322,15 @@ namespace SimpleWebInspector
             return null;
         }
 
+        private const uint CentralDirectoryHeaderSize = 46;
+
         private static byte[] GetBytesFromZip(string zipFilePath, string contentPath)
         {
             Stream stream = null;
             WWW www = null;
 
-            try {
+            try
+            {
                 try
                 {
                     stream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read);
@@ -335,53 +338,114 @@ namespace SimpleWebInspector
                 catch
                 {
                     www = new WWW(zipFilePath);
-                    while(!www.isDone) {}
+                    while (!www.isDone) { }
                     stream = new MemoryStream(www.bytes);
                 }
 
-                while (true)
+                var centralDirectoryPosition = GetStartPositionOfCentralDirectory(stream);
+                if (centralDirectoryPosition == 0)
                 {
-                    var header = new byte[30];
+                    return null;
+                }
+
+                var header = new byte[CentralDirectoryHeaderSize];
+
+                while (centralDirectoryPosition < stream.Length)
+                {
+                    stream.Seek(centralDirectoryPosition, SeekOrigin.Begin);
+
                     if (!ReadBytes(stream, header))
                     {
                         return null;
                     }
-                    if (BitConverter.ToUInt32(header, 0) != 0x04034b50)
-                    {
-                        return null;
-                    }
-                    var compressedSize = BitConverter.ToUInt32(header, 18);
-                    var fileNameLength = BitConverter.ToUInt16(header, 26);
-                    var extraFieldLength = BitConverter.ToUInt16(header, 28);
+
+                    var fileNameLength = BitConverter.ToUInt16(header, 28);
 
                     var fileNameBytes = new byte[fileNameLength];
                     if (!ReadBytes(stream, fileNameBytes))
                     {
                         return null;
                     }
-                    stream.Seek(extraFieldLength, SeekOrigin.Current);
 
-                    var fileName  = System.Text.Encoding.ASCII.GetString(fileNameBytes);
-                    if (fileName != contentPath) 
+                    var fileName = System.Text.Encoding.ASCII.GetString(fileNameBytes);
+
+                    if (fileName == contentPath)
                     {
-                        stream.Seek(compressedSize, SeekOrigin.Current);
-                        continue;
+                        var compressedSize = BitConverter.ToUInt32(header, 20);
+                        var localFilePosition = BitConverter.ToUInt32(header, 42);
+
+                        return GetZipLocalFile(stream, localFilePosition, fileNameLength, compressedSize);
                     }
 
-                    var data = new byte[compressedSize];
-                    if (!ReadBytes(stream, data))
-                    {
-                        return null;
-                    }
+                    var extraFieldLength = BitConverter.ToUInt16(header, 30);
+                    var commentLength = BitConverter.ToUInt16(header, 32);
 
-                    return data;
+
+                    centralDirectoryPosition += (uint)header.Length + fileNameLength + extraFieldLength + commentLength;
                 }
+
+                return null;
             }
             finally
             {
                 stream?.Dispose();
                 www?.Dispose();
             }
+        }
+
+        private const uint EndOfCentralDirectoryHeaderSize = 22;
+
+        private static uint GetStartPositionOfCentralDirectory(Stream stream)
+        {
+            var header = new byte[EndOfCentralDirectoryHeaderSize];
+
+            long length = stream.Length;
+
+            for (long offset = header.Length; offset <= length; offset++)
+            {
+                stream.Seek(-offset, SeekOrigin.End);
+
+                ReadBytes(stream, header);
+
+                if (BitConverter.ToUInt32(header, 0) != 0x06054b50)
+                {
+                    continue;
+                }
+
+                return BitConverter.ToUInt32(header, 16);
+            }
+
+            return 0;
+        }
+
+        private const uint LocalFileHeaderSize = 30;
+
+        private static byte[] GetZipLocalFile(Stream stream, uint position, uint fileNameLength, uint compressedSize)
+        {
+            stream.Seek(position, SeekOrigin.Begin);
+
+            var header = new byte[LocalFileHeaderSize];
+            if (!ReadBytes(stream, header))
+            {
+                return null;
+            }
+
+            if (BitConverter.ToUInt32(header, 0) != 0x04034b50)
+            {
+                return null;
+            }
+
+            var extraFieldLength = BitConverter.ToUInt16(header, 28);
+
+            stream.Seek(position + header.Length + fileNameLength + extraFieldLength, SeekOrigin.Begin);
+
+            var data = new byte[compressedSize];
+            if (!ReadBytes(stream, data))
+            {
+                return null;
+            }
+
+            return data;
         }
 
         private static bool ReadBytes(Stream stream, byte[] bytes)
