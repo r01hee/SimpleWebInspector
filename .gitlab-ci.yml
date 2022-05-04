@@ -1,4 +1,4 @@
-image: node:alpine
+image: node:18.1.0-alpine3.15
 
 stages:
   - build 
@@ -9,14 +9,12 @@ stages:
     paths:
       - $artifact_name
   script: &build_script
-    - cd WebApplicationClient
+    - cd WebApplicationClient~
     - yarn install
-    - yarn run build
+    - yarn run deploy
     - cd ..
-    - mkdir -p ${artifact_name}/Assets/SimpleWebInspector
-    - cp ./Assets/SimpleWebInspector/SimpleWebInspector.cs ${artifact_name}/Assets/SimpleWebInspector/
-    - mkdir -p ${artifact_name}/Assets/StreamingAssets/
-    - cp ./Assets/StreamingAssets/SWInspector.zip ${artifact_name}/Assets/StreamingAssets/SWInspector.zip
+    - mkdir -p ${artifact_name}
+    - cp WebApplicationClient~/SWInspector-StreamingAssets.zip ${artifact_name}/
 
 build:
   stage: build
