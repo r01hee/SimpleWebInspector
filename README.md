@@ -1,34 +1,40 @@
 # Simple Web Inspector
 
-Simple Web Inspector is a helper tool for the application created by Unity.
-
-Via Web Browser without Unity Editer,
-possible to edit GameObject's Transform such as Position, Rotattion, Scale.
+Simple Web Inspector is the inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale.
 
 ![demo](https://raw.githubusercontent.com/wiki/r01hee/SimpleWebInspector/images/demo.gif)
 
-## Setup
-
-1. Change **Configuration > Scripting Runtime Version** to **.NET 4.x Equivalent** in PlayerSettings.
-
-2. Extract dev.r01.simplewebinspector-vX.X.X.zip , and then copy all contents in Assets/ directory to your projects Assets/ directory
-
-3. Attach SimpleWebInspector/SimpleWebInspector.cs to any of the GameObject.
+## Installation via UPM
+Add `https://github.com/r01hee/SimpleWebInspector.git` to Package Manager  
+or Append to `Packages/manifest.json` as following
+```json
+{
+  // ...
+  "dependencies": {
+    "dev.r01.simplewebinspector": "https://github.com/r01hee/SimpleWebInspector.git",
+    // ...
+  }
+  // ...
+}
+```
 
 ## Usage
 
-Run your application, and access to **http://`IP or host of the device running your application`:8080** with Web Browser (by default, 8080 port used).
+1. Select **Window > SimpleWebInspector > Download WebPage StreamingAssets** in Unity menu bar, then SWInspector-StreamingAssets.zip is located in StreamingAssets/ folder
+2. Attach SimpleWebInspector script to any GameObject
+3. Run your application
+4. Access to **http://`IP or host of the device running your application`:8080** with Web Browser (by default, 8080 port used).
 
-## Building
+## Building Web Application Client assets
 
-Run below commands in "WebApplicationClient" directory.
+Run below commands in `WebApplicationClient~ ` directory.
 
 ```console
 yarn install
 yarn run deploy
 ```
 
-Then, Assets/StreamingAssets/SWInspector.zip is created.
+And then, `WebApplicationClient~/SWInspector-StreamingAssets.zip` is created.
 
 ## License
 
