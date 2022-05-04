@@ -1,0 +1,23 @@
+{
+    "name": "dev.r01.simplewebinspector",
+    "displayName": "Simple Web Inspector",
+    "version": "1.0.1",
+    "unity": "2019.4",
+    "description": "Inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale.",
+    "keywords": [
+        "inspector",
+        "debug",
+        "tools"
+    ],
+    "author": "R01hee",
+    "license": "MIT",
+    "licensesUrl": "https://github.com/r01hee/SimpleWebInspector/blob/master/LICENSE",
+    "documentationUrl": "https://github.com/r01hee/SimpleWebInspector/blob/master/README.md",
+    "changelogUrl": "https://github.com/r01hee/SimpleWebInspector/releases",
+    "files": [
+        "package.json.meta",
+        "Runtime*",
+        "LICENSE*",
+        "README.md*"
+    ]
+}
