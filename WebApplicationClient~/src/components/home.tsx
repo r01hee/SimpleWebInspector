@@ -155,13 +155,13 @@ const HomeComponent: React.FC<Props> = (props: Props) => {
     handleSelectGameObject(gameObject.instanceId);
   }, [handleSelectGameObject]);
 
-  const handleChangePosition = React.useCallback(makeHandleChangeVector3Field(handleChangeLocalPositionFields), [handleChangeLocalPositionFields])
-  const handleChangeRotation= React.useCallback(makeHandleChangeVector3Field(handleChangeLocalRotationFields), [handleChangeLocalRotationFields])
-  const handleChangeScale = React.useCallback(makeHandleChangeVector3Field(handleChangeScaleFields), [handleChangeScaleFields])
+  const handleChangePosition = React.useCallback(() => makeHandleChangeVector3Field(handleChangeLocalPositionFields), [handleChangeLocalPositionFields])
+  const handleChangeRotation= React.useCallback(() => makeHandleChangeVector3Field(handleChangeLocalRotationFields), [handleChangeLocalRotationFields])
+  const handleChangeScale = React.useCallback(() => makeHandleChangeVector3Field(handleChangeScaleFields), [handleChangeScaleFields])
 
-  const handleBlurLocalPosition = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localPosition", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
-  const handleBlurLocalRotation = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localRotation", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
-  const handleBlurScale = React.useCallback(makeHandleBlurVector3Field(selectedGameObject, "localScale", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
+  const handleBlurLocalPosition = React.useCallback(() => makeHandleBlurVector3Field(selectedGameObject, "localPosition", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
+  const handleBlurLocalRotation = React.useCallback(() => makeHandleBlurVector3Field(selectedGameObject, "localRotation", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
+  const handleBlurScale = React.useCallback(() => makeHandleBlurVector3Field(selectedGameObject, "localScale", handleUpdateGameObjects), [selectedGameObject, handleUpdateGameObjects]);
 
   const targetIds = props.gameObject.gameObjectItems.filter(g => !g.hasParent).map(g => g.instanceId);
   return (
