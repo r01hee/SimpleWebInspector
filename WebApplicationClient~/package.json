@@ -26,7 +26,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "deploy": "react-scripts build && node scripts/zip.js ./build ../Assets/StreamingAssets/SWInspector.zip",
+    "deploy": "react-scripts build && node scripts/zip.js ./build ./SWInspector-StreamingAssets.zip",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
