@@ -158,9 +158,9 @@ namespace SimpleWebInspector
 
         async Task StartServerAsync(HttpListener listener, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var actionMap = new Dictionary<Tuple<string, Regex>, Action<HttpListenerRequest, HttpListenerResponse>>()
+            var actionMap = new Dictionary<Tuple<string, Regex>, Action<HttpListenerRequest, HttpListenerResponse, Match>>()
             {
-                {Tuple.Create("GET", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/list$")), (req, res) => {
+                {Tuple.Create("GET", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/list$")), (req, res, _) => {
                         res.ContentType = "application/json";
 
                         var responseData = new ResponseObjects() {
@@ -176,7 +176,7 @@ namespace SimpleWebInspector
                         res.Close();
                     }
                 },
-                {Tuple.Create("POST", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects$")), (req, res) => {
+                {Tuple.Create("POST", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects$")), (req, res, _) => {
                         res.ContentType = "application/json";
                         if (!req.HasEntityBody) {
                             res.StatusCode = 400;
@@ -202,9 +202,7 @@ namespace SimpleWebInspector
                         GameObject parentGameObject = null;
                         if (request.hasParent)
                         {
-                            parentGameObject = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject))
-                                .OfType<GameObject>()
-                                .FirstOrDefault(x => x.GetInstanceID() == request.parentInstanceId);
+                            parentGameObject = FindGameObjectByInstanceId(request.parentInstanceId);
                         }
 
                         var responseData = new ResponseObjects() {
@@ -217,7 +215,7 @@ namespace SimpleWebInspector
                             var prefab = Resources.Load(request.prefabPath);
                             if (prefab == null)
                             {
-                                res.StatusCode = 204;
+                                res.StatusCode = (int)HttpStatusCode.NoContent;
                                 res.Close();
                                 return;
                             }
@@ -265,7 +263,28 @@ namespace SimpleWebInspector
                         res.Close();
                     }
                 },
-                {Tuple.Create("PUT", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/transforms$")), (req, res) => {
+                {Tuple.Create("DELETE", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/(-?\d+)$")), (req, res, match) => {
+                        res.ContentType = "application/json";
+                        if (!int.TryParse(match.Groups[1].Value, out var instanceId))
+                        {
+                            res.StatusCode = 400;
+                            res.Close();
+                            return;
+                        }
+
+                        var target = FindGameObjectByInstanceId(instanceId);
+                        if (target == null) {
+                            res.StatusCode = (int)HttpStatusCode.NoContent;
+                            res.Close();
+                            return;
+                        }
+
+                        Destroy(target);
+
+                        res.Close();
+                    }
+                },
+                {Tuple.Create("PUT", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/transforms$")), (req, res, _) => {
                         res.ContentType = "application/json";
                         if (!req.HasEntityBody) {
                             res.StatusCode = 400;
@@ -301,7 +320,7 @@ namespace SimpleWebInspector
                         res.Close();
                     }
                 },
-                {Tuple.Create("GET", new Regex($@"^{RelativeUrlRoot}")), (req, res) => {
+                {Tuple.Create("GET", new Regex($@"^{RelativeUrlRoot}")), (req, res, _) => {
                         string relativePath = req.RawUrl.Remove(req.RawUrl.IndexOf(RelativeUrlRoot), RelativeUrlRoot.Length);
                         if (relativePath.Contains(".."))
                         {
@@ -347,16 +366,19 @@ namespace SimpleWebInspector
                 var req = context.Request;
                 var res = context.Response;
 
-                var action = actionMap.FirstOrDefault(a => a.Key.Item1 == req.HttpMethod && a.Key.Item2.IsMatch(req.RawUrl));
+                var action = actionMap
+                    .Where(a => a.Key.Item1 == req.HttpMethod)
+                    .Select(a => Tuple.Create(a, a.Key.Item2.Match(req.RawUrl)))
+                    .FirstOrDefault(a => a.Item2.Success);
 
-                if (action.Value == null)
+                if (action == null)
                 {
                     res.StatusCode = 404;
                     res.Close();
                     continue;
                 }
 
-                action.Value(req, res);
+                action.Item1.Value(req, res, action.Item2);
             }
 
         }
@@ -420,6 +442,13 @@ namespace SimpleWebInspector
             }
 
             return null;
+        }
+
+        private static GameObject FindGameObjectByInstanceId(int instanceId)
+        {
+            return UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject))
+                .OfType<GameObject>()
+                .FirstOrDefault(x => x.GetInstanceID() == instanceId);
         }
 
         private const uint CentralDirectoryHeaderSize = 46;
