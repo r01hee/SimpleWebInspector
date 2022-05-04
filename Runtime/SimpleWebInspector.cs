@@ -39,6 +39,17 @@ namespace SimpleWebInspector
         }
 
         [Serializable]
+        public class RequestPostObject
+        {
+            public string name;
+            public string prefabPath;
+            public string primitiveType;
+            public bool hasParent;
+            public int parentInstanceId;
+            public bool instantiateInWorldSpace;
+        }
+
+        [Serializable]
         public class ResponseObjects
         {
             public List<Object> objects;
@@ -160,6 +171,95 @@ namespace SimpleWebInspector
                             AppendSceneObject(responseData.objects, obj);
                         }
 
+                        var responseJson = Encoding.ASCII.GetBytes(JsonUtility.ToJson(responseData));
+                        res.OutputStream.Write(responseJson, 0, responseJson.Length);
+                        res.Close();
+                    }
+                },
+                {Tuple.Create("POST", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects$")), (req, res) => {
+                        res.ContentType = "application/json";
+                        if (!req.HasEntityBody) {
+                            res.StatusCode = 400;
+                            res.Close();
+                            return;
+                        }
+                        var request = JsonUtility.FromJson<RequestPostObject>(ReadRequestBody(req));
+                        if (request == null) {
+                            res.StatusCode = 400;
+                            res.Close();
+                            return;
+                        }
+
+                        var isPrimitive = !string.IsNullOrEmpty(request.primitiveType);
+                        var isPrefab = !string.IsNullOrEmpty(request.prefabPath);
+                        if (isPrimitive && isPrefab)
+                        {
+                            res.StatusCode = 400;
+                            res.Close();
+                            return;
+                        }
+
+                        GameObject parentGameObject = null;
+                        if (request.hasParent)
+                        {
+                            parentGameObject = UnityEngine.Resources.FindObjectsOfTypeAll(typeof(GameObject))
+                                .OfType<GameObject>()
+                                .FirstOrDefault(x => x.GetInstanceID() == request.parentInstanceId);
+                        }
+
+                        var responseData = new ResponseObjects() {
+                            objects = new List<Object>()
+                        };
+                        GameObject result;
+
+                        if (isPrefab)
+                        {
+                            var prefab = Resources.Load(request.prefabPath);
+                            if (prefab == null)
+                            {
+                                res.StatusCode = 204;
+                                res.Close();
+                                return;
+                            }
+                            if (parentGameObject != null)
+                            {
+                                result = Instantiate(prefab, parentGameObject.transform, request.instantiateInWorldSpace) as GameObject;
+                            }
+                            else
+                            {
+                                result = Instantiate(prefab) as GameObject;
+                            }
+                            result.name = request.name;
+                        }
+                        else if (isPrimitive)
+                        {
+                            var primitiveTypeName = request.primitiveType.ToLower();
+                            var types = Enum.GetValues(typeof(PrimitiveType))
+                                .OfType<PrimitiveType>()
+                                .Where(x => x.ToString().ToLower() == primitiveTypeName)
+                                .ToArray();
+                            if (!types.Any())
+                            {
+                                res.StatusCode = 400;
+                                res.Close();
+                                return;
+                            }
+                            result = GameObject.CreatePrimitive(types.First());
+                            if (parentGameObject != null)
+                            {
+                                result.transform.SetParent(parentGameObject.transform, request.instantiateInWorldSpace);
+                            }
+                        }
+                        else
+                        {
+                            result = new GameObject(request.name);
+                            if (parentGameObject != null)
+                            {
+                                result.transform.SetParent(parentGameObject.transform, request.instantiateInWorldSpace);
+                            }
+                        }
+
+                        AppendSceneObject(responseData.objects, result);
                         var responseJson = Encoding.ASCII.GetBytes(JsonUtility.ToJson(responseData));
                         res.OutputStream.Write(responseJson, 0, responseJson.Length);
                         res.Close();
