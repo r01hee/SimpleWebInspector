@@ -3,7 +3,7 @@
     "displayName": "Simple Web Inspector",
     "version": "1.0.1",
     "unity": "2019.4",
-    "description": "Inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale.",
+    "description": "Inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale even if runtime of built application.",
     "keywords": [
         "inspector",
         "debug",

@@ -1,6 +1,6 @@
 # Simple Web Inspector
 
-Simple Web Inspector is the inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale.
+Simple Web Inspector is the inspector via web, that is possible to edit transform of GameObject such as position, rotation, scale even if runtime of built application.
 
 ![demo](https://raw.githubusercontent.com/wiki/r01hee/SimpleWebInspector/images/demo.gif)
 
@@ -36,7 +36,10 @@ or Append to `Packages/manifest.json` as following
 | Method | URL format | Description |
 | ------ | ---------- | ----------- |
 | GET    | /api/v1/gameObjects/list | Returns a list of all `GameObjects` in current Scene. |
+| GET    | /api/v1/gameObjects/{instanceId} | Returns a `GameObject` specified with **instanceId** . |
+| POST   | /api/v1/gameObjects | Create new GameObject in accordance with `NewGameObject` parameter. |
 | PUT    | /api/v1/gameObjects/transforms | Modify transforms of GameObject in accordance with `Transforms` parameter. |
+| DELETE | /api/v1/gameObjects/{instanceId} | Destroy a GameObject specified with **instanceId** . |
 
 #### JSON params
 ##### GameObjects
@@ -45,7 +48,6 @@ or Append to `Packages/manifest.json` as following
 | objects | `GameObject` | a list of `GameObject`. |
  
 ##### GameObject
- 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | name | string | Name of the GameObject. |
@@ -59,6 +61,16 @@ or Append to `Packages/manifest.json` as following
 | rotation | `Vector3` | Rotation of the GameObject as Euler angles. |
 | localRotation | `Vector3` | LocalRotation of the GameObject as Euler angles. |
 | localScale | `Vector3` | LocalScale of the GameObject. |
+
+##### NewGameObject
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | string | Name of new GameObject. |
+| prefabPath | string | Specify path of a prefab in Resources if wishing to instantiate from the prefab. If specified this value, don't specify **primitiveType**. |
+| primitiveType | string | Specify [PremitiveType](https://docs.unity3d.com/ja/2019.4/ScriptReference/PrimitiveType.html) name such as **"Sphere"**, **"Cube"** if wishing to create primitive object. If specified this value, don't specify **prefabPath**. |
+| hasParent | boolean | If this value is true, **parentInstanceId** is treated as in available. If false, new GameObject has no parent. |
+| parentInstanceId | number | Parent's instanceId of new GameObject. In case of **hasParent** is false, or not found GameObject that has this instanceId in current Scene, ignored this value. |
+| instantiateInWorldSpace | boolean | When you assign a parent Object, pass true to position the new object directly in world space. Pass false to set the Object’s position relative to its new parent. |
 
 ##### Transforms
 | Field | Type | Description |
