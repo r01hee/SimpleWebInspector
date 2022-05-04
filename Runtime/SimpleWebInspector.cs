@@ -58,7 +58,7 @@ namespace SimpleWebInspector
         };
         
         static private readonly string RelativeUrlRoot = "/";
-        static private readonly string ZipFileName = "SWInspector.zip";
+        static private readonly string ZipFileName = "SWInspector-StreamingAssets.zip";
 
         [SerializeField]
         private string[] Prefixes = new string[] { "http://*:8080/" };
