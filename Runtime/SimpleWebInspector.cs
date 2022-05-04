@@ -176,6 +176,33 @@ namespace SimpleWebInspector
                         res.Close();
                     }
                 },
+                {Tuple.Create("GET", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects/(-?\d+)$")), (req, res, match) => {
+                        res.ContentType = "application/json";
+                        if (!int.TryParse(match.Groups[1].Value, out var instanceId))
+                        {
+                            res.StatusCode = 400;
+                            res.Close();
+                            return;
+                        }
+
+                        var target = FindGameObjectByInstanceId(instanceId);
+                        if (target == null) {
+                            res.StatusCode = (int)HttpStatusCode.NoContent;
+                            res.Close();
+                            return;
+                        }
+
+                        var responseData = new ResponseObjects() {
+                            objects = new List<Object>()
+                        };
+
+                        AppendSceneObject(responseData.objects, target);
+
+                        var responseJson = Encoding.ASCII.GetBytes(JsonUtility.ToJson(responseData));
+                        res.OutputStream.Write(responseJson, 0, responseJson.Length);
+                        res.Close();
+                    }
+                },
                 {Tuple.Create("POST", new Regex($@"^{RelativeUrlRoot}api/v1/gameObjects$")), (req, res, _) => {
                         res.ContentType = "application/json";
                         if (!req.HasEntityBody) {
