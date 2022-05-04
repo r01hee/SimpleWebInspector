@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { WithStyles, withStyles, createStyles } from '@material-ui/core'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import { Theme } from '@material-ui/core/styles';
 
 import Collapse from '@material-ui/core/Collapse'
 import List from '@material-ui/core/List'

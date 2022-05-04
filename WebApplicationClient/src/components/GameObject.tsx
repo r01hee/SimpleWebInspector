@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { WithStyles, withStyles, createStyles } from '@material-ui/core'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import { Theme } from '@material-ui/core/styles';
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemIcon from '@material-ui/core/ListItemIcon'

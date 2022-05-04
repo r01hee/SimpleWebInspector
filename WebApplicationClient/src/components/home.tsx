@@ -1,7 +1,7 @@
 import { Action } from 'typescript-fsa'
 import * as React from 'react'
 import { WithStyles, withStyles, createStyles } from '@material-ui/core'
-import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import { Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
