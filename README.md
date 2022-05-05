@@ -25,7 +25,8 @@ or Append to `Packages/manifest.json` as following
 
 ### Usage
 
-1. Select **Window > SimpleWebInspector > Download WebPage StreamingAssets** in Unity menu bar, then SWInspector-StreamingAssets.zip is located in StreamingAssets/ folder
+1. Select **Window > SimpleWebInspector > Download WebPage StreamingAssets** in Unity menu bar, then SWInspector-StreamingAssets.zip is located in StreamingAssets/ folder  
+![download-webpage-streamingassets](https://raw.githubusercontent.com/wiki/r01hee/SimpleWebInspector/images/dl-streamingassets.gif)
 2. Attach SimpleWebInspector script to any GameObject
 3. Run your application
 4. Access to **http://`IP or host of the device running your application`:8080** with Web Browser (by default, 8080 port used).
